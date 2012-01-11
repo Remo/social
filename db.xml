@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- edited with XML Spy v2.5 NT  - http://www.xmlspy.com -->
+<schema version="0.3">
+  <table name="mLinkedinApiCredentials">
+    <field name="id" type="I">
+      <key/>
+      <unsigned/>
+      <autoincrement/>
+    </field>
+    <field name="api_key" type="C" size="255"/>
+		<field name="secret"  type="C" size="255"/>
+	</table>
+	<table name="mFacebookApiCredentials">
+    <field name="id" type="I">
+      <key/>
+      <unsigned/>
+      <autoincrement/>
+    </field>
+    <field name="api_key" type="C" size="255"/>
+		<field name="secret"  type="C" size="255"/>
+	</table>
+</schema>
