@@ -30,7 +30,7 @@ class SocialController extends Controller {
       
       if(empty($code)) {
         $loginUrl = $f->getLoginUrl(array(
-          'redirect_uri' => 'http://vc-sandbox.dev/social/login/facebook'
+          'redirect_uri' => "http://{$_SERVER['SERVER_NAME']}/social/login/facebook"
         ));
         // $this->redirect($loginUrl);
         header("Location: $loginUrl");
