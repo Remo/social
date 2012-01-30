@@ -17,6 +17,7 @@ Installation
     - `/social/login/facebook` - Facebook
     - `/social/login/linkedin` - LinkedIn
     - `/social/login/twitter` - Twitter
+0. Or visit `/social` for an example of how to link to these URLs.
 
 Credits
 -------
