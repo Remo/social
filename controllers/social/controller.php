@@ -20,7 +20,7 @@ class SocialController extends Controller {
     $this->network = $network;
     $this->setContentType("text/plain");
     $config = $this->get_hybrid_auth_config();
-  	$hybridauth = new Hybrid_Auth($config);
+    $hybridauth = new Hybrid_Auth($config);
 		
     if($this->network == 'facebook') {
       $auth = $hybridauth->authenticate("Facebook");
