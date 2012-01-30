@@ -10,13 +10,13 @@ Installation
 0. Go to `/dashboard/install` and install the __Social__ package.
 0. Click on the Social tab from the left-hand sidebar.
 0. Configure the social networks by entering the proper API credentials.
-  - [New Facebook app](https://developers.facebook.com/apps)
-  - [New LinkedIn app](https://www.linkedin.com/secure/developer?newapp=)
-  - [New Twitter app](https://dev.twitter.com/apps/new)
+    - [New Facebook app](https://developers.facebook.com/apps)
+    - [New LinkedIn app](https://www.linkedin.com/secure/developer?newapp=)
+    - [New Twitter app](https://dev.twitter.com/apps/new)
 0. You can now use the following URLs to login with a social network.
-  - `/social/login/facebook` - Facebook
-  - `/social/login/linkedin` - LinkedIn
-  - `/social/login/twitter` - Twitter
+    - `/social/login/facebook` - Facebook
+    - `/social/login/linkedin` - LinkedIn
+    - `/social/login/twitter` - Twitter
 
 Credits
 -------
