@@ -154,7 +154,7 @@ class SocialController extends Controller {
        "Facebook" => array ( 
          "enabled" => true,
          "keys"    => array ( "id" => $facebook->getApiKey(), "secret" => $facebook->getSecret() ),
-         "scope"   => ""
+         "scope"   => "email"
        ),
        "Twitter" => array ( 
          "enabled" => true,
