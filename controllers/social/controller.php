@@ -11,7 +11,9 @@ class SocialController extends Controller {
       $network;
       
   public function view() {
-    
+    $html = Loader::helper('html');
+    $this->addHeaderItem($html->css('zocial/css/zocial.css', 'social'));
+    $this->addHeaderItem($html->css('master.css', 'social'));
   }
   
   public function login($network = '') {
