@@ -100,9 +100,9 @@ class SocialController extends Controller {
     $ch = curl_init($img);
     
     curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
     
     $rawdata = curl_exec($ch);
     
