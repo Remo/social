@@ -22,7 +22,7 @@ $flash = Loader::helper('flash_data','flash_data');
       <label for="api_key">API Key</label>
       <input type="text" name="api_key" value="<?= $credentials->getApiKey(); ?>" class="text" id="api_key">
       
-      <label for="secret">Secret Key</label>
+      <label for="secret">API Secret</label>
       <input type="text" name="secret" value="<?= $credentials->getSecret(); ?>" class="text" id="secret">
     </fieldset>
     <p><input type="submit" value="Save &rarr;"></p>
