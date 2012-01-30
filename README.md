@@ -6,7 +6,7 @@ This package adds the ability to login and register a user via Facebook, LinkedI
 Installation
 ------------
 
-0. Copy the `social` directory into the `packages` directory of a Concrete5 installation. 
+0. Copy the _social_ directory into the _packages_ directory of a Concrete5 installation. 
 0. Go to `/dashboard/install` and install the __Social__ package.
 0. Click on the Social tab from the left-hand sidebar.
 0. Configure the social networks by entering the proper API credentials.
