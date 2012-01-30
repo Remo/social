@@ -150,8 +150,11 @@ class SocialController extends Controller {
     $facebook = FacebookApiCredentials::load();
     $linkedin = LinkedinApiCredentials::load();
     $twitter  = TwitterApiCredentials::load();
+    $baseUrl  = (!empty($_SERVER['HTTPS'])) ? "https://" : "http://";
+    $baseUrl .= $_SERVER['SERVER_NAME'] . "/packages/social/tools/hybridauth/";
+    
     $config   = array(
-     "base_url" => "http://{$_SERVER['SERVER_NAME']}/packages/social/tools/hybridauth/", 
+     "base_url" => $baseUrl,
      "providers" => array ( 
        "Facebook" => array ( 
          "enabled" => true,
