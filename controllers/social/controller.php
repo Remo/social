@@ -95,30 +95,20 @@ class SocialController extends Controller {
       $img = $this->user->photoURL;
     }
     
-    if($this->network == 'facebook') {
-      $fbch = curl_init($img);
-      curl_setopt($fbch, CURLOPT_HEADER, true); // header will be at output
-      curl_setopt($fbch, CURLOPT_CUSTOMREQUEST, 'HEAD'); // HTTP request is 'HEAD'
-      
-      ob_start();
-      curl_exec($fbch);
-      $headerStr = ob_get_clean();
-      $headerArr = explode("\r\n", $headerStr);
-      
-      $headers = array();
-      foreach($headerArr as $key => $header) {
-        if(count(explode(": ", $header)) > 0) {
-          $parts = explode(": ", $header);
-          $headers[strtolower($parts[0])] = $parts[1];
-        }
-      }
-      
-      $img = $headers["location"];
-    }
-    
     $fullpath = DIR_FILES_AVATARS."/".$ui->getUserID().".jpg";
     
-    $rawdata = file_get_contents($img);
+    $ch = curl_init($img);
+    
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    
+    $rawdata = curl_exec($ch);
+    
+    curl_close($ch);
     
     if(file_exists($fullpath)){
       unlink($fullpath);
