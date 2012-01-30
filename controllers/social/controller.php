@@ -117,8 +117,8 @@ class SocialController extends Controller {
     fwrite($fp, $rawdata);
     fclose($fp);
     
-  	$d['uHasAvatar'] = 1;
-		$ui->update($d);
+    $d['uHasAvatar'] = 1;
+    $ui->update($d);
   }
   
   protected function setContentType($type) {
