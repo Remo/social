@@ -103,6 +103,7 @@ class SocialController extends Controller {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, "cURL");
     
     $rawdata = curl_exec($ch);
     
