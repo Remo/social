@@ -4,7 +4,7 @@ Loader::model('facebook_api_credentials', 'social');
 Loader::model('linkedin_api_credentials', 'social');
 Loader::model('twitter_api_credentials', 'social');
 Loader::model('user_list');
-require_once(dirname(__FILE__) . "/../../tools/hybridauth/Hybrid/Auth.php" );
+Loader::tool('hybridauth/Hybrid/Auth', null, 'social');
 
 class SocialController extends Controller { 
   var $user_profile,
