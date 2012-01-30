@@ -1,20 +1,20 @@
 <?php defined('C5_EXECUTE') or die("Access Denied.");
 
-Loader::model('facebook_api_credentials', 'social');
+Loader::model('twitter_api_credentials', 'social');
 
-class DashboardSocialFacebookController extends Controller { 
+class DashboardSocialTwitterController extends Controller { 
   
   public function view() {
-    $credentials = FacebookApiCredentials::load();
+    $credentials = TwitterApiCredentials::load();
     $this->set('credentials', $credentials);
   }
   
   public function on_before_render() {
     $subnav = array(
 			array('/dashboard/social/', t('General')),
-			array('/dashboard/social/facebook', t('Facebook'), true),
+			array('/dashboard/social/facebook', t('Facebook')),
 			array('/dashboard/social/linkedin', t('LinkedIn')),
-			array('/dashboard/social/twitter', t('Twitter')),
+			array('/dashboard/social/twitter', t('Twitter'), true),
 		);
 		$this->set('subnav', $subnav);
   }
@@ -22,7 +22,7 @@ class DashboardSocialFacebookController extends Controller {
   public function update() {
     $flash = Loader::helper('flash_data','flash_data');
     
-    $credentials = FacebookApiCredentials::load();
+    $credentials = TwitterApiCredentials::load();
     $credentials->setApiKey($_POST['api_key']);
     $credentials->setSecret($_POST['secret']);
     
@@ -34,7 +34,7 @@ class DashboardSocialFacebookController extends Controller {
     else {
       $flash->error("Couldn't save configuration to the database.");
     }
-    $this->redirect('/dashboard/social/facebook');
+    $this->redirect('/dashboard/social/twitter');
   }
 }
 ?>

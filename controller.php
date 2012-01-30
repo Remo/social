@@ -32,43 +32,25 @@ class SocialPackage extends Package {
       )
     );
     SinglePage::add('dashboard/social/facebook', $pkg);
+    SinglePage::add('dashboard/social/linkedin', $pkg);
+    SinglePage::add('dashboard/social/twitter',  $pkg);
     
-    // TODO: Implement LinkedIn Authentication
-    // SinglePage::add('dashboard/social/linkedin', $pkg);
+    // Add social network attribute keys.
+    $this->add_user_attribute_key('facebook_id', 'Facebook ID');
+    $this->add_user_attribute_key('linkedin_id', 'LinkedIn ID');
+    $this->add_user_attribute_key('twitter_id',  'Twitter ID');
     
-    // TODO: Implement Twitter Authentication
-    // SinglePage::add('dashboard/social/twitter', $pkg);
+    // Basic fields for profile information.
+    $this->add_user_attribute_key('first_name',  'First Name');
+    $this->add_user_attribute_key('last_name',   'Last Name');
     
-    // Add attribute keys
-    $social_network_name = UserAttributeKey::getByHandle('social_network_name');
-    if(!is_object($social_network_name)) {
-      UserAttributeKey::add('text', array(
-        'akHandle' => 'social_network_name', 
-        'akName' => t('Social Network Name'))
-      , $pkg);
-    }
-    
-    $social_network_id = UserAttributeKey::getByHandle('social_network_id');
-    if(!is_object($social_network_id)) {
-      UserAttributeKey::add('text', array(
-        'akHandle' => 'social_network_id', 
-        'akName' => t('Social Network ID'))
-      , $pkg);
-    }
-    
-    $first_name = UserAttributeKey::getByHandle('first_name');
-    if(!is_object($first_name)) {
-      UserAttributeKey::add('text', array(
-        'akHandle' => 'first_name', 
-        'akName' => t('First Name'))
-      , $pkg);
-    }
-    
-    $last_name = UserAttributeKey::getByHandle('last_name');
-    if(!is_object($last_name)) {
-      UserAttributeKey::add('text', array(
-        'akHandle' => 'last_name', 
-        'akName' => t('Last Name'))
+  }
+  public function add_user_attribute_key($handle, $name, $type='text') {
+    $ak = UserAttributeKey::getByHandle($handle);
+    if(!is_object($ak)) {
+      UserAttributeKey::add($type, array(
+        'akHandle' => $handle, 
+        'akName' => t($name))
       , $pkg);
     }
   }

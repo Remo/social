@@ -2,82 +2,55 @@
 
 Loader::model('facebook_api_credentials', 'social');
 Loader::model('linkedin_api_credentials', 'social');
+Loader::model('twitter_api_credentials', 'social');
 Loader::model('user_list');
-Loader::packageElement('facebook/facebook', 'social');
+require_once(dirname(__FILE__) . "/../../tools/hybridauth/Hybrid/Auth.php" );
 
 class SocialController extends Controller { 
-  
+  var $user_profile,
+      $network;
+      
   public function view() {
     
   }
   
   public function login($network = '') {
+    $this->network = $network;
     $this->setContentType("text/plain");
-    $html     = Loader::helper('html');
-    $facebook = FacebookApiCredentials::load();
-    $linkedin = LinkedinApiCredentials::load();
-    
-    $this->set('facebook',$facebook);
-    $this->set('linkedin',$linkedin);
-    
-    if($network == 'facebook') {
-      $code = $_REQUEST["code"];
-      
-      $f = new Facebook(array(
-        'appId' => $facebook->getApiKey(),
-        'secret' => $facebook->getSecret()
-      ));
-      
-      if(empty($code)) {
-        $loginUrl = $f->getLoginUrl(array(
-          'redirect_uri' => "http://{$_SERVER['SERVER_NAME']}/social/login/facebook"
-        ));
-        // $this->redirect($loginUrl);
-        header("Location: $loginUrl");
-        exit;
-      }
-      else {
-        $profile = $f->api('/me','GET');
-        $user = array(
-          "first_name"          => $profile["first_name"],
-          "last_name"           => $profile["last_name"],
-          "social_network_name" => "facebook",
-          "social_network_id"   => $profile["id"]
-        );
-        if(self::do_login($user) == false) {
-          if(self::do_register($user)) {
-            if(self::do_login($user)) {
-              $this->redirect('/');
-            }
-          }
-        }
-        // User is logged in and ready.
-        // ...
-        $u = new User();
-        if(!$u->checkLogin()) {
-          echo 'Error: not logged in. You should be logged in by now.';
-        }
-        else {
-          $this->redirect('/');
-        }
-      }
+    $config = $this->get_hybrid_auth_config();
+  	$hybridauth = new Hybrid_Auth($config);
+		
+    if($this->network == 'facebook') {
+      $auth = $hybridauth->authenticate("Facebook");
     }
-    elseif($network == 'linkedin') {
-      
+    elseif($this->network == 'linkedin') {
+      $auth = $hybridauth->authenticate("LinkedIn");
+    }
+    elseif($this->network == 'twitter') {
+      $auth = $hybridauth->authenticate("Twitter");
     }
     else {
-      $this->redirect('/social');
+      $this->redirect('/');
     }
+    
+    $is_user_logged_in = $auth->isUserConnected();
+    $this->user = $auth->getUserProfile();
+    
+    if(!$this->do_login()) {
+      // Register user if they can't be logged in.
+      if($this->do_register()) {
+        // Try logging in again.
+        $this->do_login();
+      }
+    }
+    
+    $this->redirect('/');
     exit;
   }
   
-  protected static function do_login($user) {
+  protected function do_login() {
     $ul = new UserList(); 
-    $social_network_name = $user['social_network_name'];
-    $social_network_id   = $user['social_network_id'];
-    
-    $ul->filterByAttribute("social_network_name", $social_network_name);
-    $ul->filterByAttribute("social_network_id",   $social_network_id);
+    $ul->filterByAttribute("{$this->network}_id", $this->user->identifier);
     
     $list     = $ul->get(1);
     $user     = $list[0];
@@ -90,35 +63,34 @@ class SocialController extends Controller {
     return $response;
   }
   
-  protected static function do_register($user) {
+  protected function do_register() {
     $response = null;
     $rand     = md5(uniqid());
+    $uName    = $this->generateUsername();
+    
+    // Need to create user in Concrete5 with random data.
     $uData    = array(
-      'uName'            => $user['social_network_id'],
+      'uName'            => $uName,
       'uPassword'        => $rand,
       'uPasswordConfirm' => $rand,
-      'uEmail'           => "{$user['social_network_id']}.{$user['social_network_name']}.social.registration@noemail.com"
+      'uEmail'           => "{$rand}.social.registration@noemail.com"
     );
     
     if($ui = UserInfo::register($uData)) {
-      $ui->setAttribute("social_network_name", $user['social_network_name']);
-      $ui->setAttribute("social_network_id", $user['social_network_id']);
-      $ui->setAttribute('first_name', $user['first_name']);
-      $ui->setAttribute('last_name', $user['last_name']);
-      self::setPicture($user, $ui);
+      $ui->setAttribute("{$this->network}_id", $this->user->identifier);
+      $ui->setAttribute('first_name', $this->user->firstName);
+      $ui->setAttribute('last_name', $this->user->lastName);
+      $this->setPicture($ui);
       $response = $ui;
     }
 
     return $response;
   }
   
-  protected static function setPicture($user, $ui) {
+  protected function setPicture($ui) {
     $img = "";
-    if(isset($user['pictureUrl']) && $user['pictureUrl'] <> '') {
-      $img = $user['pictureUrl'];
-    }
-    else if($user['social_network_name'] == 'facebook') {
-      $img = "https://graph.facebook.com/{$user['social_network_id']}/picture?type=square";
+    if(isset($this->user->photoURL) && $this->user->photoURL <> '') {
+      $img = $this->user->photoURL;
     }
     
     $fullpath = DIR_FILES_AVATARS."/".$ui->getUserID().".jpg";
@@ -128,7 +100,7 @@ class SocialController extends Controller {
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+    curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
     
     $rawdata = curl_exec($ch);
     
@@ -149,6 +121,52 @@ class SocialController extends Controller {
   
   protected function setContentType($type) {
     header("Content-type: $type");
+  }
+  protected function generateUsername() {
+    $name = $this->user->firstName . " " . $this->user->lastName;
+    $name = str_replace(" ", "", $name); // Replace spaces.
+    $name = strtolower($name);           // Make lowercase.
+    
+    $isUnique = false;
+    $count    = 0;
+    $username = $name;
+    while($isUnique == false) {
+      $ul = new UserList(); 
+      $ul->filterByUsername($username);
+      $list = $ul->get(1);
+      if(count($list) == 0) {
+        $isUnique = true;
+      }
+      else {
+        $count++;
+        $username =  $name . $count;
+      } 
+    }
+    return $username;
+  }
+  protected function get_hybrid_auth_config() {
+    $facebook = FacebookApiCredentials::load();
+    $linkedin = LinkedinApiCredentials::load();
+    $twitter  = TwitterApiCredentials::load();
+    $config   = array(
+     "base_url" => "http://{$_SERVER['SERVER_NAME']}/packages/social/tools/hybridauth/", 
+     "providers" => array ( 
+       "Facebook" => array ( 
+         "enabled" => true,
+         "keys"    => array ( "id" => $facebook->getApiKey(), "secret" => $facebook->getSecret() ),
+         "scope"   => ""
+       ),
+       "Twitter" => array ( 
+         "enabled" => true,
+         "keys"    => array ( "key" => $twitter->getApiKey(), "secret" => $twitter->getSecret() ) 
+       ),
+       "LinkedIn" => array ( 
+         "enabled" => true,
+         "keys"    => array ( "key" => $linkedin->getApiKey(), "secret" => $linkedin->getSecret() ),
+       ),
+      ),
+    );
+    return $config;
   }
 }
 ?>

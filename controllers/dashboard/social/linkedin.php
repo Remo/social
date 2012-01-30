@@ -14,6 +14,7 @@ class DashboardSocialLinkedinController extends Controller {
 			array('/dashboard/social/', t('General')),
 			array('/dashboard/social/facebook', t('Facebook')),
 			array('/dashboard/social/linkedin', t('LinkedIn'), true),
+			array('/dashboard/social/twitter', t('Twitter')),
 		);
 		$this->set('subnav', $subnav);
   }

@@ -13,6 +13,7 @@ class DashboardSocialController extends Controller {
 			array('/dashboard/social/', t('General'), true),
 			array('/dashboard/social/facebook', t('Facebook')),
 			array('/dashboard/social/linkedin', t('LinkedIn')),
+			array('/dashboard/social/twitter', t('Twitter')),
 		);
 		$this->set('subnav', $subnav);
   }
