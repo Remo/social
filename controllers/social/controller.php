@@ -118,16 +118,7 @@ class SocialController extends Controller {
     
     $fullpath = DIR_FILES_AVATARS."/".$ui->getUserID().".jpg";
     
-    $ch = curl_init($img);
-    
-    curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-    
-    $rawdata = curl_exec($ch);
-    
-    curl_close($ch);
+    $rawdata = file_get_contents($img);
     
     if(file_exists($fullpath)){
       unlink($fullpath);
