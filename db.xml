@@ -8,8 +8,8 @@
       <autoincrement/>
     </field>
     <field name="api_key" type="C" size="255"/>
-		<field name="secret"  type="C" size="255"/>
-	</table>
+    <field name="secret"  type="C" size="255"/>
+  </table>
 	<table name="mFacebookApiCredentials">
     <field name="id" type="I">
       <key/>
@@ -17,8 +17,8 @@
       <autoincrement/>
     </field>
     <field name="api_key" type="C" size="255"/>
-		<field name="secret"  type="C" size="255"/>
-	</table>
+    <field name="secret"  type="C" size="255"/>
+  </table>
 	<table name="mTwitterApiCredentials">
     <field name="id" type="I">
       <key/>
@@ -26,6 +26,6 @@
       <autoincrement/>
     </field>
     <field name="api_key" type="C" size="255"/>
-		<field name="secret"  type="C" size="255"/>
-	</table>
+    <field name="secret"  type="C" size="255"/>
+  </table>
 </schema>
