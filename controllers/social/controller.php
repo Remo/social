@@ -6,22 +6,22 @@ Loader::model('twitter_api_credentials', 'social');
 Loader::model('user_list');
 Loader::tool('hybridauth/Hybrid/Auth', null, 'social');
 
-class SocialController extends Controller { 
+class SocialController extends Controller {
   var $user_profile,
       $network;
-      
+
   public function view() {
     $html = Loader::helper('html');
     $this->addHeaderItem($html->css('zocial/css/zocial.css', 'social'));
     $this->addHeaderItem($html->css('master.css', 'social'));
   }
-  
+
   public function login($network = '') {
     $this->network = $network;
     $this->setContentType("text/plain");
     $config = $this->get_hybrid_auth_config();
     $hybridauth = new Hybrid_Auth($config);
-		
+
     if($this->network == 'facebook') {
       $auth = $hybridauth->authenticate("Facebook");
     }
@@ -34,42 +34,52 @@ class SocialController extends Controller {
     else {
       $this->redirect('/');
     }
-    
+
     $is_user_logged_in = $auth->isUserConnected();
     $this->user = $auth->getUserProfile();
-    
-    if(!$this->do_login()) {
-      // Register user if they can't be logged in.
-      if($this->do_register()) {
-        // Try logging in again.
-        $this->do_login();
+
+
+    $u = new User();
+    if($u->checkLogin) {
+      // User is logged in. Attach this network to their profile.
+      $ui->setAttribute("{$this->network}_id", $this->user->identifier);
+      $ui = UserInfo::getById($u->getUserId());
+      $this->setPicture($ui);
+    }
+    else {
+      if(!$this->do_login()) {
+        // Register user if they can't be logged in.
+        if($this->do_register()) {
+          // Try logging in again.
+          $this->do_login();
+        }
       }
     }
-    
+
     $this->redirect('/');
     exit;
   }
-  
+
   protected function do_login() {
-    $ul = new UserList(); 
+    $ul = new UserList();
     $ul->filterByAttribute("{$this->network}_id", $this->user->identifier);
-    
+
     $list     = $ul->get(1);
     $user     = $list[0];
     $response = false;
-    
+
     if($user <> null) {
       $response = User::loginByUserID($user->getUserID());
     }
-    
+
     return $response;
   }
-  
+
   protected function do_register() {
     $response = null;
     $rand     = md5(uniqid());
     $uName    = $this->generateUsername();
-    
+
     // Need to create user in Concrete5 with random data.
     $uData    = array(
       'uName'            => $uName,
@@ -77,7 +87,7 @@ class SocialController extends Controller {
       'uPasswordConfirm' => $rand,
       'uEmail'           => "{$rand}.social.registration@noemail.com"
     );
-    
+
     if($ui = UserInfo::register($uData)) {
       $ui->setAttribute("{$this->network}_id", $this->user->identifier);
       $ui->setAttribute('first_name', $this->user->firstName);
@@ -88,41 +98,41 @@ class SocialController extends Controller {
 
     return $response;
   }
-  
+
   protected function setPicture($ui) {
     $img = "";
     if(isset($this->user->photoURL) && $this->user->photoURL <> '') {
       $img = $this->user->photoURL;
     }
-    
+
     $fullpath = DIR_FILES_AVATARS."/".$ui->getUserID().".jpg";
-    
+
     $ch = curl_init($img);
-    
+
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-    
+
     $rawdata = curl_exec($ch);
-    
+
     curl_close($ch);
-    
+
     if(file_exists($fullpath)){
       unlink($fullpath);
     }
-    
+
     $fp = fopen($fullpath,'x');
-    
+
     fwrite($fp, $rawdata);
     fclose($fp);
-    
+
     $d['uHasAvatar'] = 1;
     $ui->update($d);
   }
-  
+
   protected function setContentType($type) {
     header("Content-type: $type");
   }
@@ -130,12 +140,12 @@ class SocialController extends Controller {
     $name = $this->user->firstName . " " . $this->user->lastName;
     $name = str_replace(" ", "", $name); // Replace spaces.
     $name = strtolower($name);           // Make lowercase.
-    
+
     $isUnique = false;
     $count    = 0;
     $username = $name;
     while($isUnique == false) {
-      $ul = new UserList(); 
+      $ul = new UserList();
       $ul->filterByUsername($username);
       $list = $ul->get(1);
       if(count($list) == 0) {
@@ -144,7 +154,7 @@ class SocialController extends Controller {
       else {
         $count++;
         $username =  $name . $count;
-      } 
+      }
     }
     return $username;
   }
@@ -154,20 +164,20 @@ class SocialController extends Controller {
     $twitter  = TwitterApiCredentials::load();
     $baseUrl  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] <> "off") ? "https://" : "http://";
     $baseUrl .= $_SERVER['SERVER_NAME'] . "/packages/social/tools/hybridauth/";
-    
+
     $config   = array(
      "base_url" => $baseUrl,
-     "providers" => array ( 
-       "Facebook" => array ( 
+     "providers" => array (
+       "Facebook" => array (
          "enabled" => true,
          "keys"    => array ( "id" => $facebook->getApiKey(), "secret" => $facebook->getSecret() ),
          "scope"   => "email"
        ),
-       "Twitter" => array ( 
+       "Twitter" => array (
          "enabled" => true,
-         "keys"    => array ( "key" => $twitter->getApiKey(), "secret" => $twitter->getSecret() ) 
+         "keys"    => array ( "key" => $twitter->getApiKey(), "secret" => $twitter->getSecret() )
        ),
-       "LinkedIn" => array ( 
+       "LinkedIn" => array (
          "enabled" => true,
          "keys"    => array ( "key" => $linkedin->getApiKey(), "secret" => $linkedin->getSecret() ),
        ),
