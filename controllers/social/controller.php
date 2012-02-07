@@ -128,6 +128,10 @@ class SocialController extends Controller {
       $img = $this->user->photoURL;
     }
 
+    if($img == "") {
+      return; // No image, no try.
+    }
+
     $fullpath = DIR_FILES_AVATARS."/".$ui->getUserID().".jpg";
 
     $ch = curl_init($img);
