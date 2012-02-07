@@ -40,10 +40,10 @@ class SocialController extends Controller {
 
 
     $u = new User();
-    if($u->checkLogin) {
+    if($u->checkLogin()) {
       // User is logged in. Attach this network to their profile.
-      $ui->setAttribute("{$this->network}_id", $this->user->identifier);
       $ui = UserInfo::getById($u->getUserId());
+      $ui->setAttribute("{$this->network}_id", $this->user->identifier);
       $this->setPicture($ui);
     }
     else {
