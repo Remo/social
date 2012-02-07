@@ -38,13 +38,9 @@ class SocialController extends Controller {
     $is_user_logged_in = $auth->isUserConnected();
     $this->user = $auth->getUserProfile();
 
-
     $u = new User();
     if($u->checkLogin()) {
-      // User is logged in. Attach this network to their profile.
-      $ui = UserInfo::getById($u->getUserId());
-      $ui->setAttribute("{$this->network}_id", $this->user->identifier);
-      $this->setPicture($ui);
+      $this->setProfile();
     }
     else {
       if(!$this->do_login()) {
@@ -89,14 +85,41 @@ class SocialController extends Controller {
     );
 
     if($ui = UserInfo::register($uData)) {
-      $ui->setAttribute("{$this->network}_id", $this->user->identifier);
-      $ui->setAttribute('first_name', $this->user->firstName);
-      $ui->setAttribute('last_name', $this->user->lastName);
-      $this->setPicture($ui);
       $response = $ui;
     }
 
     return $response;
+  }
+
+  protected function setProfile() {
+    $u = new User();
+
+    // User is logged in. Attach this network to their profile.
+    $ui = UserInfo::getById($u->getUserId());
+    $ui->setAttribute("{$this->network}_id", $this->user->identifier);
+    if($ui->getAttribute('first_name') == '') {
+      $ui->setAttribute('first_name', $this->user->firstName);
+    }
+    if($ui->getAttribute('last_name') == '') {
+      $ui->setAttribute('last_name', $this->user->lastName);
+    }
+
+    $this->setPicture($ui);
+
+    if($network == 'linkedin') {
+      $auth->api()->setResponseFormat('JSON');
+      $resp = $auth->api()->profile('~:(id,first-name,last-name,industry,positions)');
+      $profile = json_decode($resp['linkedin']);
+
+      if(UserAttributeKey::getByHandle('company')) {
+        $company = $profile->positions->values[0]->company->name;
+        $ui->setAttribute('company', $company);
+      }
+      if(UserAttributeKey::getByHandle('title')) {
+        $title = $profile->positions->values[0]->title;
+        $ui->setAttribute('title', $title);
+      }
+    }
   }
 
   protected function setPicture($ui) {
