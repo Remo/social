@@ -45,14 +45,13 @@ class SocialController extends Controller {
     }
     else {
       if(!$this->do_login()) {
-        // Register user if they can't be logged in.
         if($this->do_register()) {
-          // Try logging in again.
-          $this->do_login();
+          if($this->do_login()) {
+            $this->setProfile($ui);
+          }
         }
       }
     }
-
     $this->redirect('/');
     exit;
   }
@@ -86,6 +85,7 @@ class SocialController extends Controller {
     );
 
     if($ui = UserInfo::register($uData)) {
+      $ui->setAttribute("{$this->network}_id", $this->user->identifier);
       $response = $ui;
     }
 
@@ -93,10 +93,9 @@ class SocialController extends Controller {
   }
 
   protected function setProfile() {
-    $u = new User();
-
-    // User is logged in. Attach this network to their profile.
+    $u  = new User();
     $ui = UserInfo::getById($u->getUserId());
+
     $ui->setAttribute("{$this->network}_id", $this->user->identifier);
     if($ui->getAttribute('first_name') == '') {
       $ui->setAttribute('first_name', $this->user->firstName);
