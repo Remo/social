@@ -8,7 +8,8 @@ Loader::tool('hybridauth/Hybrid/Auth', null, 'social');
 
 class SocialController extends Controller {
   var $user_profile,
-      $network;
+      $network,
+      $auth;
 
   public function view() {
     $html = Loader::helper('html');
@@ -23,20 +24,20 @@ class SocialController extends Controller {
     $hybridauth = new Hybrid_Auth($config);
 
     if($this->network == 'facebook') {
-      $auth = $hybridauth->authenticate("Facebook");
+      $this->auth = $hybridauth->authenticate("Facebook");
     }
     elseif($this->network == 'linkedin') {
-      $auth = $hybridauth->authenticate("LinkedIn");
+      $this->auth = $hybridauth->authenticate("LinkedIn");
     }
     elseif($this->network == 'twitter') {
-      $auth = $hybridauth->authenticate("Twitter");
+      $this->auth = $hybridauth->authenticate("Twitter");
     }
     else {
       $this->redirect('/');
     }
 
-    $is_user_logged_in = $auth->isUserConnected();
-    $this->user = $auth->getUserProfile();
+    $is_user_logged_in = $this->auth->isUserConnected();
+    $this->user = $this->auth->getUserProfile();
 
     $u = new User();
     if($u->checkLogin()) {
@@ -107,8 +108,8 @@ class SocialController extends Controller {
     $this->setPicture($ui);
 
     if($network == 'linkedin') {
-      $auth->api()->setResponseFormat('JSON');
-      $resp = $auth->api()->profile('~:(id,first-name,last-name,industry,positions)');
+      $this->auth->api()->setResponseFormat('JSON');
+      $resp = $this->auth->api()->profile('~:(id,first-name,last-name,industry,positions)');
       $profile = json_decode($resp['linkedin']);
 
       if(UserAttributeKey::getByHandle('company')) {
