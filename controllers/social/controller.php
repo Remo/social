@@ -1,5 +1,7 @@
 <?php defined('C5_EXECUTE') or die("Access Denied.");
 
+define('SOCIAL_REDIRECT_HANDLE', 'redirectUrl');
+
 Loader::model('facebook_api_credentials', 'social');
 Loader::model('linkedin_api_credentials', 'social');
 Loader::model('twitter_api_credentials', 'social');
@@ -20,6 +22,7 @@ class SocialController extends Controller {
   public function login($network = '') {
     $this->network = $network;
     $this->setContentType("text/plain");
+    $this->setRedirectUrl();
     $config = $this->get_hybrid_auth_config();
     $hybridauth = new Hybrid_Auth($config);
 
@@ -52,7 +55,7 @@ class SocialController extends Controller {
         }
       }
     }
-    $this->redirect('/');
+    $this->externalRedirect($this->getRedirectUrl());
     exit;
   }
 
@@ -162,6 +165,26 @@ class SocialController extends Controller {
 
   protected function setContentType($type) {
     header("Content-type: $type");
+  }
+  protected function setRedirectUrl() {
+
+    if(isset($_REQUEST[SOCIAL_REDIRECT_HANDLE]) && !empty($_REQUEST[SOCIAL_REDIRECT_HANDLE])) {
+      $_SESSION[SOCIAL_REDIRECT_HANDLE] = $_REQUEST[SOCIAL_REDIRECT_HANDLE];
+    }
+    elseif(isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'],'/social') === false) {
+      $_SESSION[SOCIAL_REDIRECT_HANDLE] = $_SERVER['HTTP_REFERER'];
+    }
+    else {
+      $_SESSION[SOCIAL_REDIRECT_HANDLE] = "/";
+    }
+  }
+  protected function getRedirectUrl() {
+    $url = "/";
+    if(isset($_SESSION[SOCIAL_REDIRECT_HANDLE])) {
+      $url = $_SESSION[SOCIAL_REDIRECT_HANDLE];
+      unset($_SESSION[SOCIAL_REDIRECT_HANDLE]);
+    }
+    return $url;
   }
   protected function generateUsername() {
     $name = $this->user->firstName . " " . $this->user->lastName;
