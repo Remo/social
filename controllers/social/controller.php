@@ -1,6 +1,7 @@
 <?php defined('C5_EXECUTE') or die("Access Denied.");
 
 define('SOCIAL_REDIRECT_HANDLE', 'redirectUrl');
+define('SOCIAL_POPUP_CALLBACK', 'popupCallback');
 
 Loader::model('facebook_api_credentials', 'social');
 Loader::model('linkedin_api_credentials', 'social');
@@ -23,6 +24,7 @@ class SocialController extends Controller {
     $this->network = $network;
     $this->setContentType("text/plain");
     $this->setRedirectUrl();
+    $this->setPopupCallback();
     $config = $this->get_hybrid_auth_config();
     $hybridauth = new Hybrid_Auth($config);
 
@@ -55,8 +57,13 @@ class SocialController extends Controller {
         }
       }
     }
-    $this->externalRedirect($this->getRedirectUrl());
-    exit;
+    if($popupCallback = $this->getPopupCallback()) {
+      $this->setContentType('text/html');
+      $this->set('popupCallback', $popupCallback);
+    }
+    else {
+      $this->externalRedirect($this->getRedirectUrl());
+    }
   }
 
   protected function do_login() {
@@ -166,6 +173,14 @@ class SocialController extends Controller {
   protected function setContentType($type) {
     header("Content-type: $type");
   }
+  protected function setPopupCallback() {
+    if(isset($_REQUEST[SOCIAL_POPUP_CALLBACK]) && !empty($_REQUEST[SOCIAL_POPUP_CALLBACK])) {
+      $_SESSION[SOCIAL_POPUP_CALLBACK] = $_REQUEST[SOCIAL_POPUP_CALLBACK];
+    }
+    else {
+      $_SESSION[SOCIAL_POPUP_CALLBACK] = null;
+    }
+  }
   protected function setRedirectUrl() {
 
     if(isset($_REQUEST[SOCIAL_REDIRECT_HANDLE]) && !empty($_REQUEST[SOCIAL_REDIRECT_HANDLE])) {
@@ -177,6 +192,14 @@ class SocialController extends Controller {
     else {
       $_SESSION[SOCIAL_REDIRECT_HANDLE] = "/";
     }
+  }
+  protected function getPopupCallback() {
+    $callback = null;
+    if(isset($_SESSION[SOCIAL_POPUP_CALLBACK])) {
+      $callback = $_SESSION[SOCIAL_POPUP_CALLBACK];
+      unset($_SESSION[SOCIAL_POPUP_CALLBACK]);
+    }
+    return $callback;
   }
   protected function getRedirectUrl() {
     $url = "/";
