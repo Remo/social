@@ -52,7 +52,7 @@ class SocialController extends Controller {
       if(!$this->do_login()) {
         if($this->do_register()) {
           if($this->do_login()) {
-            $this->setProfile($ui);
+            $this->setProfile();
           }
         }
       }
@@ -116,7 +116,7 @@ class SocialController extends Controller {
 
     $this->setPicture($ui);
 
-    if($network == 'linkedin') {
+    if($this->network == 'linkedin') {
       $this->auth->api()->setResponseFormat('JSON');
       $resp = $this->auth->api()->profile('~:(id,first-name,last-name,industry,positions)');
       $profile = json_decode($resp['linkedin']);
