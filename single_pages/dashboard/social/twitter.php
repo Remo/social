@@ -19,13 +19,13 @@ $flash = Loader::helper('flash_data','flash_data');
 <div class="ccm-dashboard-inner">
   <form action="<?= $form->action('/dashboard/social/twitter','update'); ?>" method="post" accept-charset="utf-8" id="update_twitter">
     <fieldset>
-      <label for="api_key">Consumer Key</label>
+      <label for="api_key"><?php echo t('Consumer Key')?></label>
       <input type="text" name="api_key" value="<?= $credentials->getApiKey(); ?>" class="text" id="api_key">
       
-      <label for="secret">Consumer Secret</label>
+      <label for="secret"><?php echo t('Consumer Secret')?></label>
       <input type="text" name="secret" value="<?= $credentials->getSecret(); ?>" class="text" id="secret">
     </fieldset>
-    <p><input type="submit" value="Save &rarr;"></p>
+    <p><input type="submit" value="<?php echo t('Save &rarr;')?>"></p>
   </form>
 </div>
 <style type="text/css" media="screen">

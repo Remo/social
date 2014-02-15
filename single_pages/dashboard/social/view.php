@@ -18,8 +18,8 @@ $flash = Loader::helper('flash_data','flash_data');
 </h1>
 <div class="ccm-dashboard-inner">
   <p>
-    <a href="/dashboard/social/facebook" class="zocial facebook"><span>Configure Facebook</span></a>
-    <a href="/dashboard/social/linkedin" class="zocial linkedin"><span>Configure LinkedIn</span></a>
-    <a href="/dashboard/social/twitter" class="zocial twitter"><span>Configure Twitter</span></a>
+    <a href="/dashboard/social/facebook" class="zocial facebook"><span><?php echo t('Configure Facebook')?></span></a>
+    <a href="/dashboard/social/linkedin" class="zocial linkedin"><span><?php echo t('Configure LinkedIn')?></span></a>
+    <a href="/dashboard/social/twitter" class="zocial twitter"><span><?php echo t('Configure Twitter')?></span></a>
   </p>
 </div>
