@@ -29,10 +29,10 @@ class DashboardSocialFacebookController extends Controller {
     $updated = $credentials->save();
     
     if($updated) {
-      $flash->notice("Successfully updated configuration.");
+      $flash->notice(t("Successfully updated configuration."));
     }
     else {
-      $flash->error("Couldn't save configuration to the database.");
+      $flash->error(t("Couldn't save configuration to the database."));
     }
     $this->redirect('/dashboard/social/facebook');
   }

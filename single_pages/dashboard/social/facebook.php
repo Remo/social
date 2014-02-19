@@ -19,13 +19,13 @@ $flash = Loader::helper('flash_data','flash_data');
 <div class="ccm-dashboard-inner">
   <form action="<?= $form->action('/dashboard/social/facebook','update'); ?>" method="post" accept-charset="utf-8" id="update_facebook">
     <fieldset>
-      <label for="api_key">App ID/API Key</label>
+      <label for="api_key"><?php echo t('App ID/API Key')?></label>
       <input type="text" name="api_key" value="<?= $credentials->getApiKey(); ?>" class="text" id="api_key">
       
-      <label for="secret">App Secret</label>
+      <label for="secret"><?php echo t('App Secret')?></label>
       <input type="text" name="secret" value="<?= $credentials->getSecret(); ?>" class="text" id="secret">
     </fieldset>
-    <p><input type="submit" value="Save &rarr;"></p>
+    <p><input type="submit" value="<?php echo t('Save &rarr;')?>"></p>
   </form>
 </div>
 <style type="text/css" media="screen">
