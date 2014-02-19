@@ -13,10 +13,10 @@ $flash = Loader::helper('flash_data','social');
 <? elseif($e = $flash->error()): ?>
   <div class='message error'><?= $e; ?></div>
 <? endif ?>
-<h1>
-  <span><?= t('Twitter Configuration') ?></span>
-</h1>
-<div class="ccm-dashboard-inner">
+
+<?php
+echo Loader::helper('concrete/dashboard')->getDashboardPaneHeaderWrapper(t('Twitter Configuration'));
+?>
   <form action="<?= $form->action('/dashboard/social/twitter','update'); ?>" method="post" accept-charset="utf-8" id="update_twitter">
     <fieldset>
       <label for="api_key"><?php echo t('Consumer Key')?></label>
@@ -27,7 +27,9 @@ $flash = Loader::helper('flash_data','social');
     </fieldset>
     <p><input type="submit" value="<?php echo t('Save &rarr;')?>"></p>
   </form>
-</div>
+<?php
+echo Loader::helper('concrete/dashboard')->getDashboardPaneFooterWrapper(false);
+?>
 <style type="text/css" media="screen">
   label {
     display: block;

@@ -13,13 +13,14 @@ $flash = Loader::helper('flash_data','social');
 <? elseif($e = $flash->error()): ?>
   <div class='message error'><?= $e; ?></div>
 <? endif ?>
-<h1>
-  <span><?= t('Social Configuration') ?></span>
-</h1>
-<div class="ccm-dashboard-inner">
+<?php
+echo Loader::helper('concrete/dashboard')->getDashboardPaneHeaderWrapper(t('Social Configuration'));
+?>
   <p>
     <a href="/dashboard/social/facebook" class="zocial facebook"><span><?php echo t('Configure Facebook')?></span></a>
     <a href="/dashboard/social/linkedin" class="zocial linkedin"><span><?php echo t('Configure LinkedIn')?></span></a>
     <a href="/dashboard/social/twitter" class="zocial twitter"><span><?php echo t('Configure Twitter')?></span></a>
   </p>
-</div>
+<?php
+echo Loader::helper('concrete/dashboard')->getDashboardPaneFooterWrapper(false);
+?>
