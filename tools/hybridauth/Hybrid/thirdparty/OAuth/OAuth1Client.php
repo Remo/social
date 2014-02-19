@@ -1,8 +1,8 @@
 <?php
 /*!
 * HybridAuth
-* http://hybridauth.sourceforge.net | https://github.com/hybridauth/hybridauth
-*  (c) 2009-2011 HybridAuth authors | hybridauth.sourceforge.net/licenses.html
+* http://hybridauth.sourceforge.net | http://github.com/hybridauth/hybridauth
+* (c) 2009-2012, HybridAuth authors | http://hybridauth.sourceforge.net/licenses.html 
 */
 
 // A service client for the OAuth 1/1.0a flow.
@@ -23,7 +23,9 @@ class OAuth1Client{
 	public $curl_time_out         = 30;
 	public $curl_connect_time_out = 30;
 	public $curl_ssl_verifypeer   = false;
+	public $curl_auth_header      = true;
 	public $curl_useragent        = "OAuth/1 Simple PHP Client v0.1; HybridAuth http://hybridauth.sourceforge.net/";
+	public $curl_proxy            = null;
 
 	//--
 
@@ -164,33 +166,42 @@ class OAuth1Client{
 		$ci = curl_init();
 
 		/* Curl settings */
-		curl_setopt($ci, CURLOPT_USERAGENT     , $this->curl_useragent );
-		curl_setopt($ci, CURLOPT_CONNECTTIMEOUT, $this->curl_connect_time_out );
-		curl_setopt($ci, CURLOPT_TIMEOUT       , $this->curl_time_out );
-		curl_setopt($ci, CURLOPT_RETURNTRANSFER, TRUE );
-		curl_setopt($ci, CURLOPT_HTTPHEADER    , array('Expect:') );
-		curl_setopt($ci, CURLOPT_SSL_VERIFYPEER, $this->curl_ssl_verifypeer );
-		curl_setopt($ci, CURLOPT_HEADERFUNCTION, array($this, 'getHeader') );
-		curl_setopt($ci, CURLOPT_HEADER        , FALSE );
-
-		switch ($method) {
+		curl_setopt( $ci, CURLOPT_USERAGENT     , $this->curl_useragent );
+		curl_setopt( $ci, CURLOPT_CONNECTTIMEOUT, $this->curl_connect_time_out );
+		curl_setopt( $ci, CURLOPT_TIMEOUT       , $this->curl_time_out );
+		curl_setopt( $ci, CURLOPT_RETURNTRANSFER, TRUE );
+		curl_setopt( $ci, CURLOPT_HTTPHEADER    , array('Expect:') );
+		curl_setopt( $ci, CURLOPT_SSL_VERIFYPEER, $this->curl_ssl_verifypeer );
+		curl_setopt( $ci, CURLOPT_HEADERFUNCTION, array($this, 'getHeader') );
+		curl_setopt( $ci, CURLOPT_HEADER        , FALSE );
+		
+		if($this->curl_proxy){
+			curl_setopt( $ci, CURLOPT_PROXY        , $this->curl_proxy);
+		}
+ 
+		switch ($method){
 			case 'POST':
-				curl_setopt($ci, CURLOPT_POST, TRUE );
-				if (!empty($postfields)) {
-					curl_setopt($ci, CURLOPT_POSTFIELDS, $postfields );
+				curl_setopt( $ci, CURLOPT_POST, TRUE );
+
+				if ( !empty($postfields) ){
+					curl_setopt( $ci, CURLOPT_POSTFIELDS, $postfields );
 				}
-				if (!empty($auth_header)) {
-					curl_setopt($ci, CURLOPT_HTTPHEADER, array('Content-Type: application/atom+xml', $auth_header) );
+
+				if ( !empty($auth_header) && $this->curl_auth_header ){
+					curl_setopt( $ci, CURLOPT_HTTPHEADER, array( 'Content-Type: application/atom+xml', $auth_header ) );
 				}
 				break;
 			case 'DELETE':
-				curl_setopt($ci, CURLOPT_CUSTOMREQUEST, 'DELETE');
-				if (!empty($postfields)) {
+				curl_setopt( $ci, CURLOPT_CUSTOMREQUEST, 'DELETE' );
+				if ( !empty($postfields) ){
 				  $url = "{$url}?{$postfields}";
 				}
 		}
 
 		curl_setopt($ci, CURLOPT_URL, $url);
+		if( $response === FALSE ) {
+				Hybrid_Logger::error( "OAuth1Client::request(). curl_exec error: ", curl_error($ch) );
+		}
 		$response = curl_exec($ci);
 
 		Hybrid_Logger::debug( "OAuth1Client::request(). dump request info: ", serialize( curl_getinfo($ci) ) );
@@ -198,7 +209,7 @@ class OAuth1Client{
 
 		$this->http_code = curl_getinfo($ci, CURLINFO_HTTP_CODE);
 		$this->http_info = array_merge($this->http_info, curl_getinfo($ci));
-		$this->url = $url;
+
 		curl_close ($ci);
 
 		return $response; 

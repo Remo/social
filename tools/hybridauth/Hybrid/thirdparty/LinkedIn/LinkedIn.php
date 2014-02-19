@@ -1,6 +1,7 @@
 <?php
 // http://code.google.com/p/simple-linkedinphp/
 // 3.2.0 - November 29, 2011
+// hacked into the code to handel new scope (r_basicprofile+r_emailaddress) - until Paul update linkedinphp library!
 
 /**
  * This file defines the 'LinkedIn' class. This class is designed to be a 
@@ -121,7 +122,8 @@ class LinkedIn {
 	const _URL_ACCESS                  = 'https://api.linkedin.com/uas/oauth/accessToken';
 	const _URL_API                     = 'https://api.linkedin.com';
 	const _URL_AUTH                    = 'https://www.linkedin.com/uas/oauth/authenticate?oauth_token=';
-	const _URL_REQUEST                 = 'https://api.linkedin.com/uas/oauth/requestToken';
+	// const _URL_REQUEST                 = 'https://api.linkedin.com/uas/oauth/requestToken';
+	const _URL_REQUEST                 = 'https://api.linkedin.com/uas/oauth/requestToken?scope=r_basicprofile+r_emailaddress+rw_nus+r_network'; 
 	const _URL_REVOKE                  = 'https://api.linkedin.com/uas/oauth/invalidateToken';
 	
 	// Library version
@@ -668,6 +670,10 @@ class LinkedIn {
       curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, FALSE);
       curl_setopt($handle, CURLOPT_URL, $url);
       curl_setopt($handle, CURLOPT_VERBOSE, FALSE);
+
+      if ( isset ( Hybrid_Auth::$config["proxy"] ) ) {
+      	curl_setopt($handle, CURLOPT_PROXY, Hybrid_Auth::$config["proxy"]);
+      }
       
       // configure the header we are sending to LinkedIn - http://developer.linkedin.com/docs/DOC-1203
       $header = array($oauth_req->to_header(self::_API_OAUTH_REALM));
@@ -694,6 +700,9 @@ class LinkedIn {
       
       // gather the response
       $return_data['linkedin']        = curl_exec($handle);
+      if( $return_data['linkedin'] === FALSE ) {
+          Hybrid_Logger::error( "LinkedIn::fetch(). curl_exec error: ", curl_error($ch) );
+      }
       $return_data['info']            = curl_getinfo($handle);
       $return_data['oauth']['header'] = $oauth_req->to_header(self::_API_OAUTH_REALM);
       $return_data['oauth']['string'] = $oauth_req->base_string;
@@ -2635,5 +2644,3 @@ class LinkedIn {
     return $return_data;
   }
 }
-
-?>

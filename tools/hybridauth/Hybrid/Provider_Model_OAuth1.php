@@ -1,8 +1,8 @@
 <?php
 /*!
 * HybridAuth
-* http://hybridauth.sourceforge.net | https://github.com/hybridauth/hybridauth
-*  (c) 2009-2011 HybridAuth authors | hybridauth.sourceforge.net/licenses.html
+* http://hybridauth.sourceforge.net | http://github.com/hybridauth/hybridauth
+* (c) 2009-2012, HybridAuth authors | http://hybridauth.sourceforge.net/licenses.html 
 */
 
 /**
@@ -25,7 +25,7 @@ class Hybrid_Provider_Model_OAuth1 extends Hybrid_Provider_Model
 	/**
 	* try to get the error message from provider api
 	*/ 
-	function errorMessageByStatus() { 
+	function errorMessageByStatus( $code = null ) { 
 		$http_status_codes = ARRAY(
 			200 => "OK: Success!",
 			304 => "Not Modified: There was no new data to return.",
@@ -39,8 +39,11 @@ class Hybrid_Provider_Model_OAuth1 extends Hybrid_Provider_Model
 			503 => "Service Unavailable."
 		);
 
-		if( $this->api && isset( $http_status_codes[$this->api->http_code] ) ) 
-		return  $this->api->http_code . " " .$http_status_codes[ $this->api->http_code ];
+		if( ! $code && $this->api ) 
+			$code = $this->api->http_code;
+
+		if( isset( $http_status_codes[ $code ] ) )
+			return $code . " " . $http_status_codes[ $code ];
 	}
 
 	// --------------------------------------------------------------------
@@ -79,6 +82,11 @@ class Hybrid_Provider_Model_OAuth1 extends Hybrid_Provider_Model
 		else{
 			$this->api = new OAuth1Client( $this->config["keys"]["key"], $this->config["keys"]["secret"] );
 		}
+
+		// Set curl proxy if exist
+		if( isset( Hybrid_Auth::$config["proxy"] ) ){
+			$this->api->curl_proxy = Hybrid_Auth::$config["proxy"];
+		}
 	}
 
 	// --------------------------------------------------------------------
@@ -95,11 +103,11 @@ class Hybrid_Provider_Model_OAuth1 extends Hybrid_Provider_Model
 		
 		// check the last HTTP status code returned
 		if ( $this->api->http_code != 200 ){
-			throw new Exception( "Authentification failed! {$this->providerId} returned an error. " . $this->errorMessageByStatus( $this->api->http_code ), 5 );
+			throw new Exception( "Authentication failed! {$this->providerId} returned an error. " . $this->errorMessageByStatus( $this->api->http_code ), 5 );
 		}
 
 		if ( ! isset( $tokens["oauth_token"] ) ){
-			throw new Exception( "Authentification failed! {$this->providerId} returned an invalid oauth token.", 5 );
+			throw new Exception( "Authentication failed! {$this->providerId} returned an invalid oauth token.", 5 );
 		}
 
 		$this->token( "request_token"       , $tokens["oauth_token"] ); 
@@ -116,11 +124,11 @@ class Hybrid_Provider_Model_OAuth1 extends Hybrid_Provider_Model
 	*/ 
 	function loginFinish()
 	{
-		$oauth_token    = @ $_REQUEST['oauth_token'];
-		$oauth_verifier = @ $_REQUEST['oauth_verifier'];
+		$oauth_token    = (array_key_exists('oauth_token',$_REQUEST))?$_REQUEST['oauth_token']:"";
+		$oauth_verifier = (array_key_exists('oauth_verifier',$_REQUEST))?$_REQUEST['oauth_verifier']:"";
 
 		if ( ! $oauth_token || ! $oauth_verifier ){
-			throw new Exception( "Authentification failed! {$this->providerId} returned an invalid oauth verifier.", 5 );
+			throw new Exception( "Authentication failed! {$this->providerId} returned an invalid oauth verifier.", 5 );
 		}
 
 		// request an access token
@@ -131,12 +139,12 @@ class Hybrid_Provider_Model_OAuth1 extends Hybrid_Provider_Model
 
 		// check the last HTTP status code returned
 		if ( $this->api->http_code != 200 ){
-			throw new Exception( "Authentification failed! {$this->providerId} returned an error. " . $this->errorMessageByStatus( $this->api->http_code ), 5 );
+			throw new Exception( "Authentication failed! {$this->providerId} returned an error. " . $this->errorMessageByStatus( $this->api->http_code ), 5 );
 		}
 
 		// we should have an access_token, or else, something has gone wrong
 		if ( ! isset( $tokens["oauth_token"] ) ){
-			throw new Exception( "Authentification failed! {$this->providerId} returned an invalid access token.", 5 );
+			throw new Exception( "Authentication failed! {$this->providerId} returned an invalid access token.", 5 );
 		}
 
 		// we no more need to store requet tokens

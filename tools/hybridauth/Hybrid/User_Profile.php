@@ -1,8 +1,8 @@
 <?php
 /*!
 * HybridAuth
-* http://hybridauth.sourceforge.net | https://github.com/hybridauth/hybridauth
-*  (c) 2009-2011 HybridAuth authors | hybridauth.sourceforge.net/licenses.html
+* http://hybridauth.sourceforge.net | http://github.com/hybridauth/hybridauth
+* (c) 2009-2012, HybridAuth authors | http://hybridauth.sourceforge.net/licenses.html 
 */
 
 /**
@@ -60,6 +60,9 @@ class Hybrid_User_Profile
 
 	/* User email. Note: not all of IDp garant access to the user email */
 	public $email = NULL;
+	
+	/* Verified user email. Note: not all of IDp garant access to verified user email */
+	public $emailVerified = NULL;
 
 	/* phone number */
 	public $phone = NULL;

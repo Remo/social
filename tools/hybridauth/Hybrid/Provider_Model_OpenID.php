@@ -1,8 +1,8 @@
 <?php
 /*!
 * HybridAuth
-* http://hybridauth.sourceforge.net | https://github.com/hybridauth/hybridauth
-*  (c) 2009-2011 HybridAuth authors | hybridauth.sourceforge.net/licenses.html
+* http://hybridauth.sourceforge.net | http://github.com/hybridauth/hybridauth
+* (c) 2009-2012, HybridAuth authors | http://hybridauth.sourceforge.net/licenses.html 
 */
 
 /**
@@ -33,8 +33,11 @@ class Hybrid_Provider_Model_OpenID extends Hybrid_Provider_Model
 
 		// include LightOpenID lib
 		require_once Hybrid_Auth::$config["path_libraries"] . "OpenID/LightOpenID.php"; 
-
-		$this->api = new LightOpenID( parse_url( Hybrid_Auth::$config["base_url"], PHP_URL_HOST) ); 
+		
+		// An error was occurring when proxy wasn't set. Not sure where proxy was meant to be set/initialized.
+		Hybrid_Auth::$config['proxy'] = isset(Hybrid_Auth::$config['proxy'])?Hybrid_Auth::$config['proxy']:'';
+		
+		$this->api = new LightOpenID( parse_url( Hybrid_Auth::$config["base_url"], PHP_URL_HOST), Hybrid_Auth::$config["proxy"] ); 
 	}
 
 	// --------------------------------------------------------------------
@@ -86,12 +89,12 @@ class Hybrid_Provider_Model_OpenID extends Hybrid_Provider_Model
 	{
 		# if user don't garant acess of their data to your site, halt with an Exception
 		if( $this->api->mode == 'cancel'){
-			throw new Exception( "Authentification failed! User has canceled authentication!", 5 );
+			throw new Exception( "Authentication failed! User has canceled authentication!", 5 );
 		}
 
 		# if something goes wrong
 		if( ! $this->api->validate() ){
-			throw new Exception( "Authentification failed. Invalid request recived!", 5 );
+			throw new Exception( "Authentication failed. Invalid request recived!", 5 );
 		}
 
 		# fetch recived user data
@@ -100,30 +103,30 @@ class Hybrid_Provider_Model_OpenID extends Hybrid_Provider_Model
 		# sotre the user profile
 		$this->user->profile->identifier  = $this->api->identity;
 
-		$this->user->profile->firstName   = @ $response["namePerson/first"];
-		$this->user->profile->lastName    = @ $response["namePerson/last"];
-		$this->user->profile->displayName = @ $response["namePerson"];
-		$this->user->profile->email       = @ $response["contact/email"];
-		$this->user->profile->language    = @ $response["pref/language"];
-		$this->user->profile->country     = @ $response["contact/country/home"]; 
-		$this->user->profile->zip         = @ $response["contact/postalCode/home"]; 
-		$this->user->profile->gender      = @ strtolower( $response["person/gender"] ); 
-		$this->user->profile->photoURL    = @ $response["media/image/default"]; 
+		$this->user->profile->firstName   = (array_key_exists("namePerson/first",$response))?$response["namePerson/first"]:"";
+		$this->user->profile->lastName    = (array_key_exists("namePerson/last",$response))?$response["namePerson/last"]:"";
+		$this->user->profile->displayName = (array_key_exists("namePerson",$response))?$response["namePerson"]:"";
+		$this->user->profile->email       = (array_key_exists("contact/email",$response))?$response["contact/email"]:"";
+		$this->user->profile->language    = (array_key_exists("pref/language",$response))?$response["pref/language"]:"";
+		$this->user->profile->country     = (array_key_exists("contact/country/home",$response))?$response["contact/country/home"]:""; 
+		$this->user->profile->zip         = (array_key_exists("contact/postalCode/home",$response))?$response["contact/postalCode/home"]:""; 
+		$this->user->profile->gender      = (array_key_exists("person/gender",$response))?$response["person/gender"]:""; 
+		$this->user->profile->photoURL    = (array_key_exists("media/image/default",$response))?$response["media/image/default"]:""; 
 
-		$this->user->profile->birthDay    = @ $response["birthDate/birthDay"]; 
-		$this->user->profile->birthMonth  = @ $response["birthDate/birthMonth"]; 
-		$this->user->profile->birthYear   = @ $response["birthDate/birthDate"];  
+		$this->user->profile->birthDay    = (array_key_exists("birthDate/birthDay",$response))?$response["birthDate/birthDay"]:""; 
+		$this->user->profile->birthMonth  = (array_key_exists("birthDate/birthMonth",$response))?$response["birthDate/birthMonth"]:""; 
+		$this->user->profile->birthYear   = (array_key_exists("birthDate/birthDate",$response))?$response["birthDate/birthDate"]:"";  
 
 		if( ! $this->user->profile->displayName ) {
 			$this->user->profile->displayName = trim( $this->user->profile->lastName . " " . $this->user->profile->firstName ); 
 		}
 
 		if( isset( $response['namePerson/friendly'] ) && ! empty( $response['namePerson/friendly'] ) && ! $this->user->profile->displayName ) { 
-			$this->user->profile->displayName = @ $response["namePerson/friendly"] ; 
+			$this->user->profile->displayName = (array_key_exists("namePerson/friendly",$response))?$response["namePerson/friendly"]:"" ; 
 		}
 
 		if( isset( $response['birthDate'] ) && ! empty( $response['birthDate'] ) && ! $this->user->profile->birthDay ) {
-			list( $birthday_year, $birthday_month, $birthday_day ) = @ explode( '-', $response['birthDate'] );
+			list( $birthday_year, $birthday_month, $birthday_day ) = (array_key_exists('birthDate',$response))?$response['birthDate']:"";
 
 			$this->user->profile->birthDay      = (int) $birthday_day;
 			$this->user->profile->birthMonth    = (int) $birthday_month;

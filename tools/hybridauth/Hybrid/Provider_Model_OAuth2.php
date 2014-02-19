@@ -1,8 +1,8 @@
 <?php
 /*!
 * HybridAuth
-* http://hybridauth.sourceforge.net | https://github.com/hybridauth/hybridauth
-*  (c) 2009-2011 HybridAuth authors | hybridauth.sourceforge.net/licenses.html
+* http://hybridauth.sourceforge.net | http://github.com/hybridauth/hybridauth
+* (c) 2009-2012, HybridAuth authors | http://hybridauth.sourceforge.net/licenses.html 
 */
 
 /**
@@ -21,6 +21,30 @@ class Hybrid_Provider_Model_OAuth2 extends Hybrid_Provider_Model
 {
 	// default permissions 
 	public $scope = "";
+
+	/**
+	* try to get the error message from provider api
+	*/ 
+	function errorMessageByStatus( $code = null ) { 
+		$http_status_codes = ARRAY(
+			200 => "OK: Success!",
+			304 => "Not Modified: There was no new data to return.",
+			400 => "Bad Request: The request was invalid.",
+			401 => "Unauthorized.",
+			403 => "Forbidden: The request is understood, but it has been refused.",
+			404 => "Not Found: The URI requested is invalid or the resource requested does not exists.",
+			406 => "Not Acceptable.", 
+			500 => "Internal Server Error: Something is broken.",
+			502 => "Bad Gateway.",
+			503 => "Service Unavailable."
+		);
+
+		if( ! $code && $this->api ) 
+			$code = $this->api->http_code;
+
+		if( isset( $http_status_codes[ $code ] ) )
+			return $code . " " . $http_status_codes[ $code ];
+	}
 
 	// --------------------------------------------------------------------
 
@@ -51,6 +75,11 @@ class Hybrid_Provider_Model_OAuth2 extends Hybrid_Provider_Model
 			$this->api->access_token_expires_in = $this->token( "expires_in" );
 			$this->api->access_token_expires_at = $this->token( "expires_at" ); 
 		}
+
+		// Set curl proxy if exist
+		if( isset( Hybrid_Auth::$config["proxy"] ) ){
+			$this->api->curl_proxy = Hybrid_Auth::$config["proxy"];
+		}
 	}
 
 	// --------------------------------------------------------------------
@@ -71,15 +100,15 @@ class Hybrid_Provider_Model_OAuth2 extends Hybrid_Provider_Model
 	*/
 	function loginFinish()
 	{
-		$error = @ trim( strip_tags( $_REQUEST['error'] ) );
+		$error = (array_key_exists('error',$_REQUEST))?$_REQUEST['error']:"";
 
 		// check for errors
 		if ( $error ){ 
-			throw new Exception( "Authentification failed! {$this->providerId} returned an error: $error", 5 );
+			throw new Exception( "Authentication failed! {$this->providerId} returned an error: $error", 5 );
 		}
 
 		// try to authenicate user
-		$code = @ trim( strip_tags( $_REQUEST['code'] ) );
+		$code = (array_key_exists('code',$_REQUEST))?$_REQUEST['code']:"";
 
 		try{
 			$this->api->authenticate( $code ); 
@@ -90,7 +119,7 @@ class Hybrid_Provider_Model_OAuth2 extends Hybrid_Provider_Model
 
 		// check if authenticated
 		if ( ! $this->api->access_token ){ 
-			throw new Exception( "Authentification failed! {$this->providerId} returned an invalid access token.", 5 );
+			throw new Exception( "Authentication failed! {$this->providerId} returned an invalid access token.", 5 );
 		}
 
 		// store tokens

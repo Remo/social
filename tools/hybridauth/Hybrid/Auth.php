@@ -1,8 +1,8 @@
 <?php
 /*!
 * HybridAuth
-* http://hybridauth.sourceforge.net | https://github.com/hybridauth/hybridauth
-*  (c) 2009-2011 HybridAuth authors | hybridauth.sourceforge.net/licenses.html
+* http://hybridauth.sourceforge.net | http://github.com/hybridauth/hybridauth
+* (c) 2009-2012, HybridAuth authors | http://hybridauth.sourceforge.net/licenses.html
 */
 
 /**
@@ -14,7 +14,7 @@
  */
 class Hybrid_Auth 
 {
-	public static $version = "2.0.10";
+	public static $version = "2.1.1-dev";
 
 	public static $config  = array();
 
@@ -28,37 +28,14 @@ class Hybrid_Auth
 
 	/**
 	* Try to start a new session of none then initialize Hybrid_Auth
-    * 
-    * Hybrid_Auth constructor will require either a valid config array or
-    * a path for a configuration file as parameter. To know more please 
-    * refer to the Configuration section:
-    * http://hybridauth.sourceforge.net/userguide/Configuration.html
+	* 
+	* Hybrid_Auth constructor will require either a valid config array or
+	* a path for a configuration file as parameter. To know more please 
+	* refer to the Configuration section:
+	* http://hybridauth.sourceforge.net/userguide/Configuration.html
 	*/
 	function __construct( $config )
-	{
-		if ( ! session_id() ){
-			if( ! session_start() ){
-				throw new Exception( "Hybridauth requires the use of 'session_start()' at the start of your script, which appears to be disabled.", 1 );
-			}
-		}
-
-	#{{{ well, should we check this each time? ..
-		// PHP Curl extension [http://www.php.net/manual/en/intro.curl.php]
-		if ( ! function_exists('curl_init') ) {
-			throw new Exception('Hybridauth Library needs the CURL PHP extension.');
-		}
-
-		// PHP JSON extension [http://php.net/manual/en/book.json.php]
-		if ( ! function_exists('json_decode') ) {
-			throw new Exception('Hybridauth Library needs the JSON PHP extension.');
-		}
-
-		// OAuth PECL extension is not compatible with this library
-		if( extension_loaded('oauth') ) {
-			throw new Exception('Hybridauth Library not compatible with installed PECL OAuth extension. Please disable it.');
-		}
-	#}}}
-
+	{ 
 		Hybrid_Auth::initialize( $config ); 
 	}
 
@@ -69,17 +46,13 @@ class Hybrid_Auth
 	*/
 	public static function initialize( $config )
 	{
-		if ( ! session_id() ){
-			throw new Exception( "Hybriauth require the use of 'session_start()' at the start of your script.", 1 );
-		}
-
 		if( ! is_array( $config ) && ! file_exists( $config ) ){
 			throw new Exception( "Hybriauth config does not exist on the given path.", 1 );
 		}
 
 		if( ! is_array( $config ) ){
 			$config = include $config;
-		} 
+		}
 
 		// build some need'd paths
 		$config["path_base"]        = realpath( dirname( __FILE__ ) )  . "/"; 
@@ -92,21 +65,21 @@ class Hybrid_Auth
 			$config["debug_mode"] = false;
 			$config["debug_file"] = null;
 		}
-		
+
 		# load hybridauth required files, a autoload is on the way...
-		require_once $config["path_base"] . "Error.php"; 
-		require_once $config["path_base"] . "Logger.php"; 
+		require_once $config["path_base"] . "Error.php";
+		require_once $config["path_base"] . "Logger.php";
 
-		require_once $config["path_base"] . "Storage.php";  
+		require_once $config["path_base"] . "Storage.php";
 
-		require_once $config["path_base"] . "Provider_Adapter.php"; 
+		require_once $config["path_base"] . "Provider_Adapter.php";
 
 		require_once $config["path_base"] . "Provider_Model.php";
 		require_once $config["path_base"] . "Provider_Model_OpenID.php";
 		require_once $config["path_base"] . "Provider_Model_OAuth1.php";
-		require_once $config["path_base"] . "Provider_Model_OAuth2.php"; 
+		require_once $config["path_base"] . "Provider_Model_OAuth2.php";
 
-		require_once $config["path_base"] . "User.php"; 
+		require_once $config["path_base"] . "User.php";
 		require_once $config["path_base"] . "User_Profile.php";
 		require_once $config["path_base"] . "User_Contact.php";
 		require_once $config["path_base"] . "User_Activity.php";
@@ -114,23 +87,49 @@ class Hybrid_Auth
 		// hash given config
 		Hybrid_Auth::$config = $config;
 
-		// start session storage mng
-		Hybrid_Auth::$store = new Hybrid_Storage();
-		
-		// instace of errors mng
-		Hybrid_Auth::$error = new Hybrid_Error();
-
 		// instace of log mng
 		Hybrid_Auth::$logger = new Hybrid_Logger();
 
-		// store php session and version..
-		$_SESSION["HA::PHP_SESSION_ID"] = session_id(); 
-		$_SESSION["HA::VERSION"]        = Hybrid_Auth::$version; 
+		// instace of errors mng
+		Hybrid_Auth::$error = new Hybrid_Error();
 
-		// almost done, check for errors then move on
-		Hybrid_Logger::info( "Hybrid_Auth::initialize(), stated. Hybrid_Auth has been called from: " . Hybrid_Auth::getCurrentUrl() ); 
+		// start session storage mng
+		Hybrid_Auth::$store = new Hybrid_Storage();
+
+		Hybrid_Logger::info( "Enter Hybrid_Auth::initialize()"); 
+		Hybrid_Logger::info( "Hybrid_Auth::initialize(). PHP version: " . PHP_VERSION ); 
+		Hybrid_Logger::info( "Hybrid_Auth::initialize(). Hybrid_Auth version: " . Hybrid_Auth::$version ); 
+		Hybrid_Logger::info( "Hybrid_Auth::initialize(). Hybrid_Auth called from: " . Hybrid_Auth::getCurrentUrl() ); 
+
+		// PHP Curl extension [http://www.php.net/manual/en/intro.curl.php]
+		if ( ! function_exists('curl_init') ) {
+			Hybrid_Logger::error('Hybridauth Library needs the CURL PHP extension.');
+			throw new Exception('Hybridauth Library needs the CURL PHP extension.');
+		}
+
+		// PHP JSON extension [http://php.net/manual/en/book.json.php]
+		if ( ! function_exists('json_decode') ) {
+			Hybrid_Logger::error('Hybridauth Library needs the JSON PHP extension.');
+			throw new Exception('Hybridauth Library needs the JSON PHP extension.');
+		} 
+
+		// session.name
+		if( session_name() != "PHPSESSID" ){
+			Hybrid_Logger::info('PHP session.name diff from default PHPSESSID. http://php.net/manual/en/session.configuration.php#ini.session.name.');
+		}
+
+		// safe_mode is on
+		if( ini_get('safe_mode') ){
+			Hybrid_Logger::info('PHP safe_mode is on. http://php.net/safe-mode.');
+		}
+
+		// open basedir is on
+		if( ini_get('open_basedir') ){
+			Hybrid_Logger::info('PHP open_basedir is on. http://php.net/open-basedir.');
+		}
+
 		Hybrid_Logger::debug( "Hybrid_Auth initialize. dump used config: ", serialize( $config ) );
-		Hybrid_Logger::debug( "Hybrid_Auth initialize. dump current session: ", serialize( $_SESSION ) ); 
+		Hybrid_Logger::debug( "Hybrid_Auth initialize. dump current session: ", Hybrid_Auth::storage()->getSessionData() ); 
 		Hybrid_Logger::info( "Hybrid_Auth initialize: check if any error is stored on the endpoint..." );
 
 		if( Hybrid_Error::hasError() ){ 
@@ -144,13 +143,14 @@ class Hybrid_Auth
 
 			// try to provide the previous if any
 			// Exception::getPrevious (PHP 5 >= 5.3.0) http://php.net/manual/en/exception.getprevious.php
-			if ( version_compare( PHP_VERSION, '5.3.0', '>=' ) ) {  
+			if ( version_compare( PHP_VERSION, '5.3.0', '>=' ) && ($p instanceof Exception) ) { 
 				throw new Exception( $m, $c, $p );
 			}
 			else{
 				throw new Exception( $m, $c );
 			}
 		}
+
 		Hybrid_Logger::info( "Hybrid_Auth initialize: no error found. initialization succeed." );
 
 		// Endof initialize 
@@ -303,6 +303,28 @@ class Hybrid_Auth
 	// --------------------------------------------------------------------
 
 	/**
+	* Return array listing all enabled providers as well as a flag if you are connected.
+	*/ 
+	public static function getProviders()
+	{
+		$idps = array();
+
+		foreach( Hybrid_Auth::$config["providers"] as $idpid => $params ){
+			if($params['enabled']) {
+				$idps[$idpid] = array( 'connected' => false );
+
+				if( Hybrid_Auth::isConnectedWith( $idpid ) ){
+					$idps[$idpid]['connected'] = true;
+				}
+			}
+		}
+
+		return $idps;
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
 	* A generic function to logout all connected provider at once 
 	*/ 
 	public static function logoutAllProviders()
@@ -364,11 +386,12 @@ class Hybrid_Auth
 		$url = $protocol . $_SERVER['HTTP_HOST'];
 
 		// use port if non default
-		$url .= 
-			isset( $_SERVER['SERVER_PORT'] ) 
-			&&( ($protocol === 'http://' && $_SERVER['SERVER_PORT'] != 80) || ($protocol === 'https://' && $_SERVER['SERVER_PORT'] != 443) )
-			? ':' . $_SERVER['SERVER_PORT'] 
-			: '';
+		if( isset( $_SERVER['SERVER_PORT'] ) && strpos( $url, ':'.$_SERVER['SERVER_PORT'] ) === FALSE ) {
+			$url .= ($protocol === 'http://' && $_SERVER['SERVER_PORT'] != 80 && !isset( $_SERVER['HTTP_X_FORWARDED_PROTO']))
+				|| ($protocol === 'https://' && $_SERVER['SERVER_PORT'] != 443 && !isset( $_SERVER['HTTP_X_FORWARDED_PROTO']))
+				? ':' . $_SERVER['SERVER_PORT'] 
+				: '';
+		}
 
 		if( $request_uri ){
 			$url .= $_SERVER['REQUEST_URI'];

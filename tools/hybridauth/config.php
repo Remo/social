@@ -1,8 +1,8 @@
 <?php
 /*!
 * HybridAuth
-* http://hybridauth.sourceforge.net | https://github.com/hybridauth/hybridauth
-*  (c) 2009-2011 HybridAuth authors | hybridauth.sourceforge.net/licenses.html
+* http://hybridauth.sourceforge.net | http://github.com/hybridauth/hybridauth
+* (c) 2009-2012, HybridAuth authors | http://hybridauth.sourceforge.net/licenses.html
 */
 
 // ----------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 
 return 
 	array(
-		"base_url" => "http://incubator.dev/packages/social/tools/hybridauth/", 
+		"base_url" => "http://localhost/hybridauth-git/hybridauth/", 
 
 		"providers" => array ( 
 			// openid providers
@@ -20,7 +20,8 @@ return
 			),
 
 			"Yahoo" => array ( 
-				"enabled" => true 
+				"enabled" => true,
+				"keys"    => array ( "id" => "", "secret" => "" ),
 			),
 
 			"AOL"  => array ( 
@@ -29,14 +30,12 @@ return
 
 			"Google" => array ( 
 				"enabled" => true,
-				"keys"    => array ( "id" => "", "secret" => "" ),
-				"scope"   => ""
+				"keys"    => array ( "id" => "", "secret" => "" ), 
 			),
 
 			"Facebook" => array ( 
 				"enabled" => true,
-				"keys"    => array ( "id" => "300876699964486", "secret" => "ff69dea5abb62ceda1237e8e3a78dd8f" ),
-				"scope"   => ""
+				"keys"    => array ( "id" => "", "secret" => "" ), 
 			),
 
 			"Twitter" => array ( 
