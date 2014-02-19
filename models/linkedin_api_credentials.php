@@ -33,7 +33,7 @@ class LinkedinApiCredentials extends Object {
   }
   public function save() {
     $db = Loader::db();
-    return $db->execute("UPDATE ". self::$mTable ." SET api_key=\"{$this->api_key}\", secret=\"{$this->secret}\" WHERE id = {$this->id}");
+    return $db->execute("UPDATE ". self::$mTable ." SET api_key=?, secret=? WHERE id = ?", array($this->api_key, $this->secret, $this->id));    
   }
   private static function get($sql, $multiple = false) {
     $db   = Loader::db();
