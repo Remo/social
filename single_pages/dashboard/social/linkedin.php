@@ -5,7 +5,7 @@ $ih    = Loader::helper('concrete/interface');
 $cap   = Loader::helper('concrete/dashboard');
 $valt  = Loader::helper('validation/token');
 $form  = Loader::helper('form');
-$flash = Loader::helper('flash_data','flash_data');
+$flash = Loader::helper('flash_data','social');
 
 ?>
 <? if($n = $flash->notice()): ?>

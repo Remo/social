@@ -20,7 +20,7 @@ class DashboardSocialTwitterController extends Controller {
   }
   
   public function update() {
-    $flash = Loader::helper('flash_data','flash_data');
+    $flash = Loader::helper('flash_data','social');
     
     $credentials = TwitterApiCredentials::load();
     $credentials->setApiKey($_POST['api_key']);
