@@ -1,5 +1,5 @@
 {
-    "name": "spadin/social",
+    "name": "remo/social",
     "type": "concrete5-package",
     "require": {
         "php": ">=5.3.2",
