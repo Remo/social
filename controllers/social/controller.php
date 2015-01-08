@@ -8,6 +8,7 @@ define('SOCIAL_POPUP_CALLBACK', 'popupCallback');
 Loader::model('facebook_api_credentials', 'social');
 Loader::model('linkedin_api_credentials', 'social');
 Loader::model('twitter_api_credentials', 'social');
+Loader::model('google_api_credentials', 'social');
 Loader::model('user_list');
 Loader::tool('hybridauth/Hybrid/Auth', null, 'social');
 
@@ -37,6 +38,8 @@ class SocialController extends Controller {
             $this->auth = $hybridauth->authenticate("LinkedIn");
         } elseif ($this->network == 'twitter') {
             $this->auth = $hybridauth->authenticate("Twitter");
+        } elseif ($this->network == 'google') {
+            $this->auth = $hybridauth->authenticate("Google");
         } else {
             $this->redirect('/');
         }
@@ -235,8 +238,9 @@ class SocialController extends Controller {
         $facebook = FacebookApiCredentials::load();
         $linkedin = LinkedinApiCredentials::load();
         $twitter = TwitterApiCredentials::load();
-        $baseUrl = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] <> "off") ? "https://" : "http://";
-        $baseUrl .= $_SERVER['SERVER_NAME'] . "/packages/social/tools/hybridauth/";
+        $google = GoogleApiCredentials::load();
+        
+        $baseUrl = BASE_URL . Loader::helper('concrete/urls')->getToolsURL('hybridauth', 'social');
 
         $config = array(
             "base_url" => $baseUrl,
@@ -253,6 +257,10 @@ class SocialController extends Controller {
                 "LinkedIn" => array(
                     "enabled" => true,
                     "keys" => array("key" => $linkedin->getApiKey(), "secret" => $linkedin->getSecret()),
+                ),
+                "Google" => array(
+                    "enabled" => true,
+                    "keys" => array("id" => $google->getApiKey(), "secret" => $google->getSecret())
                 ),
             ),
         );

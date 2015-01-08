@@ -19,6 +19,7 @@ echo Loader::helper('concrete/dashboard')->getDashboardPaneHeaderWrapper(t('Soci
     <a href="/dashboard/social/facebook" class="zocial facebook"><span><?php echo t('Configure Facebook') ?></span></a>
     <a href="/dashboard/social/linkedin" class="zocial linkedin"><span><?php echo t('Configure LinkedIn') ?></span></a>
     <a href="/dashboard/social/twitter" class="zocial twitter"><span><?php echo t('Configure Twitter') ?></span></a>
+    <a href="/dashboard/social/google" class="zocial google"><span><?php echo t('Configure Google') ?></span></a>
 </p>
 <?php
 echo Loader::helper('concrete/dashboard')->getDashboardPaneFooterWrapper(false);

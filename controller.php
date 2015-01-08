@@ -36,11 +36,13 @@ class SocialPackage extends Package {
         SinglePage::add('dashboard/social/facebook', $pkg);
         SinglePage::add('dashboard/social/linkedin', $pkg);
         SinglePage::add('dashboard/social/twitter', $pkg);
+        SinglePage::add('dashboard/social/google', $pkg);
 
         // Add social network attribute keys.
         $this->add_user_attribute_key('facebook_id', 'Facebook ID');
         $this->add_user_attribute_key('linkedin_id', 'LinkedIn ID');
         $this->add_user_attribute_key('twitter_id', 'Twitter ID');
+        $this->add_user_attribute_key('google_id', 'Google ID');
 
         // Basic fields for profile information.
         $this->add_user_attribute_key('first_name', 'First Name');

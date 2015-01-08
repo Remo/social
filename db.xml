@@ -27,4 +27,13 @@
         <field name="api_key" type="C" size="255"/>
         <field name="secret"  type="C" size="255"/>
     </table>
+    <table name="mGoogleApiCredentials">
+        <field name="id" type="I">
+            <key/>
+            <unsigned/>
+            <autoincrement/>
+        </field>
+        <field name="api_key" type="C" size="255"/>
+        <field name="secret"  type="C" size="255"/>
+    </table>
 </schema>
