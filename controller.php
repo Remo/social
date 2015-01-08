@@ -5,21 +5,24 @@ defined('C5_EXECUTE') or die('Access Denied.');
 Loader::model('single_page');
 Loader::model('user_attributes');
 
-class SocialPackage extends Package {
-
+class SocialPackage extends Package
+{
     protected $pkgHandle = 'social';
     protected $appVersionRequired = '5.4.2.2';
     protected $pkgVersion = '0.9';
 
-    public function getPackageDescription() {
+    public function getPackageDescription()
+    {
         return t("Adds social login and registration.");
     }
 
-    public function getPackageName() {
+    public function getPackageName()
+    {
         return t("Social");
     }
 
-    public function install() {
+    public function install()
+    {
         $pkg = parent::install();
 
         // Add social single page
@@ -30,7 +33,7 @@ class SocialPackage extends Package {
         $d->update(
                 array(
                     'cName' => t('Social'),
-                    'cDescription' => t('Configure social networks.')
+                    'cDescription' => t('Configure social networks.'),
                 )
         );
         SinglePage::add('dashboard/social/facebook', $pkg);
@@ -49,14 +52,13 @@ class SocialPackage extends Package {
         $this->add_user_attribute_key('last_name', 'Last Name');
     }
 
-    public function add_user_attribute_key($handle, $name, $type = 'text') {
+    public function add_user_attribute_key($handle, $name, $type = 'text')
+    {
         $ak = UserAttributeKey::getByHandle($handle);
         if (!is_object($ak)) {
             UserAttributeKey::add($type, array(
                 'akHandle' => $handle,
-                'akName' => t($name))
-                    , $pkg);
+                'akName' => t($name), ), $pkg);
         }
     }
-
 }

@@ -12,19 +12,21 @@ Loader::model('google_api_credentials', 'social');
 Loader::model('user_list');
 Loader::tool('hybridauth/Hybrid/Auth', null, 'social');
 
-class SocialController extends Controller {
-
+class SocialController extends Controller
+{
     var $user_profile,
             $network,
             $auth;
 
-    public function view() {
+    public function view()
+    {
         $html = Loader::helper('html');
         $this->addHeaderItem($html->css('zocial/css/zocial.css', 'social'));
         $this->addHeaderItem($html->css('master.css', 'social'));
     }
 
-    public function login($network = '') {
+    public function login($network = '')
+    {
         $this->network = $network;
         $this->setContentType("text/plain");
         $this->setRedirectUrl();
@@ -67,7 +69,8 @@ class SocialController extends Controller {
         }
     }
 
-    protected function do_login() {
+    protected function do_login()
+    {
         $ul = new UserList();
         $ul->filterByAttribute("{$this->network}_id", $this->user->identifier);
 
@@ -75,14 +78,15 @@ class SocialController extends Controller {
         $user = $list[0];
         $response = false;
 
-        if ($user <> null) {
+        if ($user != null) {
             $response = User::loginByUserID($user->getUserID());
         }
 
         return $response;
     }
 
-    protected function do_register() {
+    protected function do_register()
+    {
         $response = null;
         $rand = md5(uniqid());
         $uName = $this->generateUsername();
@@ -92,7 +96,7 @@ class SocialController extends Controller {
             'uName' => $uName,
             'uPassword' => $rand,
             'uPasswordConfirm' => $rand,
-            'uEmail' => "{$rand}.social.registration@noemail.com"
+            'uEmail' => "{$rand}.social.registration@noemail.com",
         );
 
         if ($ui = UserInfo::register($uData)) {
@@ -103,7 +107,8 @@ class SocialController extends Controller {
         return $response;
     }
 
-    protected function setProfile() {
+    protected function setProfile()
+    {
         $u = new User();
         $ui = UserInfo::getById($u->getUserId());
 
@@ -133,9 +138,10 @@ class SocialController extends Controller {
         }
     }
 
-    protected function setPicture($ui) {
+    protected function setPicture($ui)
+    {
         $img = "";
-        if (isset($this->user->photoURL) && $this->user->photoURL <> '') {
+        if (isset($this->user->photoURL) && $this->user->photoURL != '') {
             $img = $this->user->photoURL;
         }
 
@@ -143,7 +149,7 @@ class SocialController extends Controller {
             return; // No image, no try.
         }
 
-        $fullpath = DIR_FILES_AVATARS . "/" . $ui->getUserID() . ".jpg";
+        $fullpath = DIR_FILES_AVATARS."/".$ui->getUserID().".jpg";
 
         $ch = curl_init($img);
 
@@ -171,11 +177,13 @@ class SocialController extends Controller {
         $ui->update($d);
     }
 
-    protected function setContentType($type) {
+    protected function setContentType($type)
+    {
         header("Content-type: $type");
     }
 
-    protected function setPopupCallback() {
+    protected function setPopupCallback()
+    {
         if (isset($_REQUEST[SOCIAL_POPUP_CALLBACK]) && !empty($_REQUEST[SOCIAL_POPUP_CALLBACK])) {
             $_SESSION[SOCIAL_POPUP_CALLBACK] = $_REQUEST[SOCIAL_POPUP_CALLBACK];
         } else {
@@ -183,8 +191,8 @@ class SocialController extends Controller {
         }
     }
 
-    protected function setRedirectUrl() {
-
+    protected function setRedirectUrl()
+    {
         if (isset($_REQUEST[SOCIAL_REDIRECT_HANDLE]) && !empty($_REQUEST[SOCIAL_REDIRECT_HANDLE])) {
             $_SESSION[SOCIAL_REDIRECT_HANDLE] = $_REQUEST[SOCIAL_REDIRECT_HANDLE];
         } elseif (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], '/social') === false) {
@@ -194,26 +202,31 @@ class SocialController extends Controller {
         }
     }
 
-    protected function getPopupCallback() {
+    protected function getPopupCallback()
+    {
         $callback = null;
         if (isset($_SESSION[SOCIAL_POPUP_CALLBACK])) {
             $callback = $_SESSION[SOCIAL_POPUP_CALLBACK];
             unset($_SESSION[SOCIAL_POPUP_CALLBACK]);
         }
+
         return $callback;
     }
 
-    protected function getRedirectUrl() {
+    protected function getRedirectUrl()
+    {
         $url = "/";
         if (isset($_SESSION[SOCIAL_REDIRECT_HANDLE])) {
             $url = $_SESSION[SOCIAL_REDIRECT_HANDLE];
             unset($_SESSION[SOCIAL_REDIRECT_HANDLE]);
         }
+
         return $url;
     }
 
-    protected function generateUsername() {
-        $name = $this->user->firstName . " " . $this->user->lastName;
+    protected function generateUsername()
+    {
+        $name = $this->user->firstName." ".$this->user->lastName;
         $name = str_replace(" ", "", $name); // Replace spaces.
         $name = strtolower($name);           // Make lowercase.
 
@@ -228,19 +241,22 @@ class SocialController extends Controller {
                 $isUnique = true;
             } else {
                 $count++;
-                $username = $name . $count;
+                $username = $name.$count;
             }
         }
+
         return $username;
     }
 
-    protected function get_hybrid_auth_config() {
+    protected function get_hybrid_auth_config()
+    {
         $facebook = FacebookApiCredentials::load();
         $linkedin = LinkedinApiCredentials::load();
         $twitter = TwitterApiCredentials::load();
         $google = GoogleApiCredentials::load();
-        
-        $baseUrl = BASE_URL . Loader::helper('concrete/urls')->getToolsURL('hybridauth', 'social');
+
+        $baseUrl = BASE_URL.Loader::helper('concrete/urls')->getToolsURL('hybridauth', 'social');
+        $baseUrl = 'http://mykompass.dev'.Loader::helper('concrete/urls')->getToolsURL('hybridauth', 'social');
 
         $config = array(
             "base_url" => $baseUrl,
@@ -248,11 +264,11 @@ class SocialController extends Controller {
                 "Facebook" => array(
                     "enabled" => true,
                     "keys" => array("id" => $facebook->getApiKey(), "secret" => $facebook->getSecret()),
-                    "scope" => "email"
+                    "scope" => "email",
                 ),
                 "Twitter" => array(
                     "enabled" => true,
-                    "keys" => array("key" => $twitter->getApiKey(), "secret" => $twitter->getSecret())
+                    "keys" => array("key" => $twitter->getApiKey(), "secret" => $twitter->getSecret()),
                 ),
                 "LinkedIn" => array(
                     "enabled" => true,
@@ -260,11 +276,11 @@ class SocialController extends Controller {
                 ),
                 "Google" => array(
                     "enabled" => true,
-                    "keys" => array("id" => $google->getApiKey(), "secret" => $google->getSecret())
+                    "keys" => array("id" => $google->getApiKey(), "secret" => $google->getSecret()),
                 ),
             ),
         );
+
         return $config;
     }
-
 }

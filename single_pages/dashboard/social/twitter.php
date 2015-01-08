@@ -7,11 +7,17 @@ $valt = Loader::helper('validation/token');
 $form = Loader::helper('form');
 $flash = Loader::helper('flash_data', 'social');
 ?>
-<?php if ($n = $flash->notice()) { ?>
-    <div class='message success'><?= $n; ?></div>
-<?php } elseif ($e = $flash->error()) { ?>
-    <div class='message error'><?= $e; ?></div>
-<?php } ?>
+<?php if ($n = $flash->notice()) {
+    ?>
+    <div class='message success'><?= $n;
+    ?></div>
+<?php 
+} elseif ($e = $flash->error()) {
+    ?>
+    <div class='message error'><?= $e;
+    ?></div>
+<?php 
+} ?>
 
 <?php
 echo Loader::helper('concrete/dashboard')->getDashboardPaneHeaderWrapper(t('Twitter Configuration'));

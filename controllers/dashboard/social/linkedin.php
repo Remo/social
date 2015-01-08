@@ -4,14 +4,16 @@ defined('C5_EXECUTE') or die('Access Denied.');
 
 Loader::model('linkedin_api_credentials', 'social');
 
-class DashboardSocialLinkedinController extends Controller {
-
-    public function view() {
+class DashboardSocialLinkedinController extends Controller
+{
+    public function view()
+    {
         $credentials = LinkedinApiCredentials::load();
         $this->set('credentials', $credentials);
     }
 
-    public function on_before_render() {
+    public function on_before_render()
+    {
         $subnav = array(
             array('/dashboard/social/', t('General')),
             array('/dashboard/social/facebook', t('Facebook')),
@@ -22,7 +24,8 @@ class DashboardSocialLinkedinController extends Controller {
         $this->set('subnav', $subnav);
     }
 
-    public function update() {
+    public function update()
+    {
         $flash = Loader::helper('flash_data', 'social');
 
         $credentials = LinkedinApiCredentials::load();
@@ -38,5 +41,4 @@ class DashboardSocialLinkedinController extends Controller {
         }
         $this->redirect('/dashboard/social/linkedin');
     }
-
 }
