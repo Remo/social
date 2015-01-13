@@ -24,7 +24,7 @@ if ($popupCallback) {
     <a href="/social/login/facebook" class="zocial facebook"><span><?=t('Login with Facebook')?></span></a>
     <a href="/social/login/linkedin" class="zocial linkedin"><span><?=t('Login with LinkedIn')?></span></a>
     <a href="/social/login/twitter" class="zocial twitter"><span><?=t('Login with Twitter')?></span></a>
-    <a href="/social/login/google" class="zocial twitter"><span><?=t('Login with Google')?></span></a>
+    <a href="/social/login/google" class="zocial google"><span><?=t('Login with Google')?></span></a>
 <?php
 
 }
