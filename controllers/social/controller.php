@@ -87,6 +87,10 @@ class SocialController extends Controller
 
     protected function do_register()
     {
+        if (defined('SOCIAL_DISABLE_REGISTRATION') && constant('SOCIAL_DISABLE_REGISTRATION')) {
+            throw new Exception(t('Account with ID %s not found! Automatic registration disabled, please create account in dashboard!', $this->user->identifier));
+        }
+        
         $response = null;
         $rand = md5(uniqid());
         $uName = $this->generateUsername();
