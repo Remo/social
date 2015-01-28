@@ -71,11 +71,8 @@ class SocialController extends Controller
 
     protected function do_login()
     {
-        $ul = new UserList();
-        $ul->filterByAttribute("{$this->network}_id", $this->user->identifier);
-
-        $list = $ul->get(1);
-        $user = $list[0];
+        $ui = UserInfo::getByEmail($this->user->email);
+        
         $response = false;
 
         if ($user != null) {
@@ -96,7 +93,7 @@ class SocialController extends Controller
             'uName' => $uName,
             'uPassword' => $rand,
             'uPasswordConfirm' => $rand,
-            'uEmail' => "{$rand}.social.registration@noemail.com",
+            'uEmail' => $this->user->email,
         );
 
         if ($ui = UserInfo::register($uData)) {
