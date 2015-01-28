@@ -256,7 +256,6 @@ class SocialController extends Controller
         $google = GoogleApiCredentials::load();
 
         $baseUrl = BASE_URL.Loader::helper('concrete/urls')->getToolsURL('hybridauth', 'social');
-        $baseUrl = 'http://mykompass.dev'.Loader::helper('concrete/urls')->getToolsURL('hybridauth', 'social');
 
         $config = array(
             "base_url" => $baseUrl,
